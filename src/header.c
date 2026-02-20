@@ -24,9 +24,7 @@ unsigned get_file_size(FILE *file){
     return size;
 }
 
-int write_header(char *fname, FILE *file, file_header *fheader){
+void write_header(char *fname, FILE *file, file_header *fheader){
     fheader->id = get_file_id(fname);
     fheader->size = get_file_size(file);
-
-    return 0;
 }
