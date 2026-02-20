@@ -1,0 +1,13 @@
+DiscordFileManager
+
+obj/
+*.o
+*.out
+.vscode
+*.so
+*.a
+*.dSYM/
+
+*.wav
+
+.DS_Store
