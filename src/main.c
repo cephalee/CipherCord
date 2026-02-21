@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <openssl/rand.h>
 
 #include "../include/header.h"
 #include "../include/chunk.h"
@@ -14,6 +16,7 @@ int main(int argc, char **argv){
     if(!file){
         fprintf(stderr, "ERROR: opening file");
     }
+    srand(time(NULL));
 
     char *fname = argv[1];
     file_header fheader;
@@ -23,22 +26,24 @@ int main(int argc, char **argv){
     uint32_t id = fheader.id; 
     uint64_t remaining_size = fheader.size;
 
-    char* data;
-    char key[16];
+
     int chunkid = 0;
+    char key[16];
+    RAND_bytes(key, 16);
+    char* data;
+    char iv[16];
 
     while (remaining_size > 0) {
-        write_chunks(&cheader, key, id, chunkid, &data, &remaining_size, file);
+        RAND_bytes(iv, 16);
+        write_chunks(&cheader, iv, id, chunkid, &data, &remaining_size, file);
         if(!data){
             return 1;
         }
-        
-        generate_key(key);
-        encrypt_chunk(data,key);
+        encrypt_chunk(data, key, &cheader);
         free(data);
         chunkid++;
     }
     
-    
+    fclose(file);
     return 0;
 }
