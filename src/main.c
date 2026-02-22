@@ -1,12 +1,15 @@
+#include <openssl/crypto.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <openssl/rand.h>
+#include <string.h>
 
 #include "../include/header.h"
 #include "../include/chunk.h"
 #include "../include/encrypt.h"
-#include "../include/base64.h"
+#include "../include/send.h"
+
 
 
 int main(int argc, char **argv){
@@ -16,7 +19,10 @@ int main(int argc, char **argv){
     FILE *file = fopen(argv[1], "rb");
     if(!file){
         fprintf(stderr, "ERROR: opening file");
+        return 1;
     }
+
+    char * hook= "^_^ not now";
 
     char *fname = argv[1];
     file_header fheader;
@@ -32,7 +38,9 @@ int main(int argc, char **argv){
     RAND_bytes(key, 16);
     char* data;
     unsigned char iv[16];
+    
     char *final;
+    size_t final_size;
 
     while (remaining_size > 0) {
         RAND_bytes(iv, 16);
@@ -40,17 +48,24 @@ int main(int argc, char **argv){
         if(!data){
             return 1;
         }
+    
         encrypt_chunk(data, key, &cheader);
-        final = encode_chunk(&cheader, data);
-        if(!final){
-            fprintf(stderr, "Error: something went wrong");
+        size_t final_size = sizeof(cheader) + cheader.data_size;
+        char *final = malloc(final_size);
+        memcpy(final, &cheader, sizeof(cheader));
+        memcpy(final + sizeof(cheader), data, cheader.data_size);
+
+        if(send_chunk_discord(hook, final, final_size, cheader.chunk_index, cheader.is_last)){
+            fprintf(stderr, "ERROR: sending chunk\n");
+            free(final);
+            free(data);
             return 1;
         }
 
-        //send
-
         free(final);
         free(data);
+        OSSL_sleep(2000);
+
         chunkid++;
     }
     
