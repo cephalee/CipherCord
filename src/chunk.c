@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void write_chunkheader(chunk_header* cheader, char key[16], uint32_t id ,uint32_t chunkid, uint8_t  is_last, uint32_t data_size){
+void write_chunkheader(chunk_header* cheader, unsigned char key[16], uint32_t id ,uint32_t chunkid, uint8_t  is_last, uint32_t data_size){
     cheader->file_id = id;
     cheader->chunk_index = chunkid;
     cheader->data_size = data_size;
@@ -12,7 +12,7 @@ void write_chunkheader(chunk_header* cheader, char key[16], uint32_t id ,uint32_
     memcpy(cheader->iv, key, 16);
 }
 
-void write_chunks(chunk_header* cheader, char key[16], uint32_t id, uint32_t chunkid, char **data, uint64_t *remaining_size, FILE* file){   
+void write_chunks(chunk_header* cheader, unsigned char key[16], uint32_t id, uint32_t chunkid, char **data, uint64_t *remaining_size, FILE* file){   
     uint8_t is_last= 0;
     unsigned read;
     if(*remaining_size < CHUNK_SIZE){

@@ -1,7 +1,7 @@
 #include <openssl/evp.h>
 #include "../include/encrypt.h"
 
-void encrypt_chunk(char *data, char key[16], chunk_header *cheader) {
+void encrypt_chunk(char *data, unsigned char key[16], chunk_header *cheader) {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     
     EVP_EncryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, (unsigned char*)key, (unsigned char*)cheader->iv);
